@@ -68,6 +68,45 @@ server {
     gzip_vary on;
 }
 ```
+proxy_pass
+```conf
+server {
+    listen 80;
+    server_name your_domain.com www.your_domain.com; # Replace with your domain or IP
+
+    # Specifies the root directory for NGINX to serve files from.
+    # This is often not needed with a proxy, but can be used for static files.
+    # root /var/www/your-react-app/dist; 
+    # index index.html index.htm; 
+
+    location / {
+        # This is the key directive that proxies requests to your React container.
+        # Replace 'react-app-container' with the name of your React service
+        # or container name in your docker-compose file.
+        # Replace '3000' with the port your React app is listening on.
+        proxy_pass http://react-app-container:3000;
+        
+        # Recommended proxy headers for passing information like the host and real IP.
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    access_log /var/log/nginx/react-app.access.log;
+    error_log /var/log/nginx/react-app.error.log;
+
+    # Optional: Enable Gzip compression
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+    gzip_proxied any;
+    gzip_comp_level 5;
+    gzip_buffers 16 8k;
+    gzip_http_version 1.1;
+    gzip_disable "MSIE [1-6]\.(?!.*SV1)";
+    gzip_vary on;
+}
+```
 
 ## enable the NGINX Configuration
 ```bash
